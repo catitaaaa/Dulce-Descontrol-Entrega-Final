@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Admin - Dulce Descontrol</title>
-                <link rel="icon" type="image/png" href="logo_dulce_descontrol.png" />
+    <link rel="icon" type="image/png" href="logo_dulce_descontrol.png" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -16,6 +16,7 @@
 </head>
 <body class="text-on-surface font-sans min-h-screen md:pl-80 flex flex-col md:flex-row overflow-hidden" id="cuerpo-admin">
 
+    <!-- PANTALLA DE ACCESO -->
     <div id="login-overlay" class="fixed inset-0 bg-[#F3EEF1] z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl text-center max-w-sm w-full border border-gray-100">
             <img src="logo_dulce_descontrol.png" alt="Logo Dulce Descontrol" class="w-20 sm:w-24 mx-auto mb-4 object-contain">
@@ -26,6 +27,7 @@
         </div>
     </div>
 
+    <!-- HEADER MÓVIL -->
     <div class="md:hidden flex items-center justify-between p-4 bg-white shadow-sm fixed top-0 left-0 w-full z-30">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-primary font-bold text-sm">M</div>
@@ -36,6 +38,7 @@
 
     <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity"></div>
 
+    <!-- MENÚ LATERAL -->
     <aside id="menu-lateral" class="bg-white shadow-xl h-full w-80 fixed left-0 top-0 z-50 flex-col py-6 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex">
         <div class="px-6 mb-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -55,6 +58,7 @@
         </nav>
     </aside>
 
+    <!-- MODALS -->
     <div id="modal-confirmacion" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center transform transition-transform scale-95" id="caja-confirmacion">
             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mb-4 ring-8 ring-red-50"><span class="material-symbols-outlined text-4xl sm:text-5xl text-red-500 font-bold">delete_forever</span></div>
@@ -179,6 +183,7 @@
         </div>
     </div>
 
+    <!-- CONTENEDOR PRINCIPAL -->
     <main id="dashboard-content" class="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-20 sm:pt-24 md:pt-10 flex flex-col gap-6 overflow-y-auto pb-10 h-screen hidden">
         
         <div id="vista-dashboard" class="flex flex-col gap-6">
@@ -251,6 +256,7 @@
 
     </main>
 
+    <!-- FIREBASE COMPAT SDKS -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -583,14 +589,13 @@
             abrirModalExito(`<strong class="text-lg text-primary">👨‍🍳 ¡Producción Iniciada!</strong><br><br><div class="bg-gray-50 border border-gray-200 p-3 rounded-xl text-left text-xs mt-2"><strong>Descuento automático para ${porciones} personas:</strong>${desgloseNotificacion}</div>`);
         }
 
-        // ===== NUEVA CONEXIÓN A FIREBASE PARA ACTUALIZAR ESTADOS =====
+        // ===== CONEXIÓN A FIREBASE PARA ACTUALIZAR ESTADOS =====
         function cambiarEstado(idPedido, nuevoEstado, recargarModalFecha = null) {
             let p = pedidosBase.find(x => x.id === idPedido);
             if (!p) return;
 
             if(p.estado !== "En producción" && nuevoEstado === "En producción") ejecutarDeduccionMatematica(p);
             
-            // Actualizamos en la nube en vez del localStorage
             db.collection("pedidos").doc(p.dbId).update({
                 estado: nuevoEstado
             }).then(() => {
@@ -600,7 +605,8 @@
             });
         }
 
-         function enviarWhatsApp(idPedido) {
+        // MENSAJERÍA RÁPIDA (WHATSAPP COMO ALERTA SIN EMOJIS)
+        function enviarWhatsApp(idPedido) {
             let p = pedidosBase.find(x => x.id === idPedido);
             if (!p) return;
 
@@ -631,6 +637,7 @@
             let url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
         }
+
         // FUNCIONALIDAD PARA ENVIAR CORREO FORMAL (VERSIÓN GMAIL INFALIBLE)
         function enviarCorreo(idPedido) {
             let p = pedidosBase.find(x => x.id === idPedido);
@@ -651,7 +658,6 @@
                  cuerpo += `El estado actual de tu pedido es: ${p.estado}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
             }
             
-            // Fuerza a abrir una ventana nueva directamente en GMAIL
             let urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(p.email)}&su=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
             
             window.open(urlGmail, '_blank');
@@ -665,7 +671,6 @@
         function limpiarSistema() { 
             abrirModalConfirmacion("Vaciar Sistema Completo", "Estas COMPLETAMENTE SEGURA de eliminar TODOS los pedidos de la NUBE y reiniciar el catalogo y bodega local?", () => { 
                 localStorage.clear(); 
-                // Borrado masivo de la nube de Firebase
                 db.collection("pedidos").get().then(snapshot => {
                     let batch = db.batch();
                     snapshot.forEach(doc => { batch.delete(doc.ref); });
@@ -714,9 +719,14 @@
                             <option value="Entregado" ${p.estado==='Entregado'?'selected':''}>Entregado</option>
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
-                        <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm">
-                            <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span><span class="inline sm:hidden md:inline">Enviar Mensaje</span>
-                        </button>
+                        <div class="flex gap-2 w-full mt-1">
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                            </button>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span>
+                            </button>
+                        </div>
                     </div>
                 </div>`;
             });
@@ -770,9 +780,14 @@
                             <option value="Entregado" ${p.estado==='Entregado'?'selected':''}>Entregado</option>
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
-                        <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm">
-                            <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span><span class="inline sm:hidden md:inline">Enviar Mensaje</span>
-                        </button>
+                        <div class="flex gap-2 w-full mt-1">
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                            </button>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span>
+                            </button>
+                        </div>
                     </div>
                 </div>`;
 
