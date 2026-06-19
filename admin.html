@@ -600,26 +600,61 @@
             });
         }
 
-        function enviarWhatsApp(idPedido) {
+         function enviarWhatsApp(idPedido) {
             let p = pedidosBase.find(x => x.id === idPedido);
             if (!p) return;
+
             let fonoStr = p.fono || p.telefono || "";
             let numeroLimpio = fonoStr.replace(/\D/g, ''); 
             let mensaje = "";
-            let totalFmt = "$" + p.precio.toLocaleString('es-CL');
 
             switch(p.estado) {
-                case "Cotizado": mensaje = `Hola ${p.cliente}, somos Dulce Descontrol. Tu pedido #${p.id} (${p.resumen}) ha sido cotizado por un total de ${totalFmt}. Deseas confirmar tu compra?`; break;
+                case "Cotizado": 
+                    mensaje = `¡Hola ${p.cliente}! Somos Dulce Descontrol. Recibimos la solicitud de tu pedido #${p.id}. Te enviamos un correo con la cotización detallada. ¿Pudiste revisarlo?`; 
+                    break;
                 case "Confirmado": 
-                    let abono = p.precio / 2; let abonoFmt = "$" + abono.toLocaleString('es-CL');
-                    mensaje = `Hola ${p.cliente}, somos Dulce Descontrol. Tu pedido #${p.id} esta Confirmado.\n\nPara agendar tu pedido necesitamos el abono del 50% (${abonoFmt} de un total de ${totalFmt}). El 50% restante (${abonoFmt}) se pagara al momento de la entrega.\n\nDATOS DE TRANSFERENCIA:\nBanco: Banco Estado\nCuenta RUT: 19.123.456-7\nNombre: Martina\nCorreo: pagos@dulcedescontrol.cl\n\nPor favor enviame el comprobante por aqui para dejar todo listo para el ${p.fecha}. Gracias.`; break;
-                case "En producción": mensaje = `Hola ${p.cliente}, Tu pedido #${p.id} ya esta En Produccion. Te avisaremos apenas este listo.`; break;
-                case "Entregado": mensaje = `Hola ${p.cliente}, tu pedido #${p.id} figura como Entregado. Esperamos que lo disfrutes mucho. Gracias por preferirnos.`; break;
-                case "Rechazado": mensaje = `Hola ${p.cliente}, nos comunicamos de Dulce Descontrol para informarte que tu pedido #${p.id} fue cancelado o rechazado. Si tienes dudas, escribenos por aqui.`; break;
-                default: mensaje = `Hola ${p.cliente}, somos Dulce Descontrol. Te escribimos respecto a tu pedido #${p.id}.`;
+                    mensaje = `¡Hola ${p.cliente}! Tu pedido #${p.id} está Confirmado. Te acabamos de enviar un correo con los datos para el abono. ¡Quedamos atentas al comprobante por esa vía!`; 
+                    break;
+                case "En producción": 
+                    mensaje = `¡Hola ${p.cliente}! Te contamos que tu pedido #${p.id} ya entró a producción. Te avisaremos apenas esté listo para entrega.`; 
+                    break;
+                case "Entregado": 
+                    mensaje = `¡Hola ${p.cliente}! Tu pedido #${p.id} figura como Entregado. ¡Esperamos que lo disfrutes muchísimo! Gracias por preferirnos.`; 
+                    break;
+                case "Rechazado": 
+                    mensaje = `Hola ${p.cliente}, nos comunicamos de Dulce Descontrol sobre tu pedido #${p.id}. Tuvimos que cancelarlo. Si tienes dudas, escríbenos por aquí.`; 
+                    break;
+                default: 
+                    mensaje = `¡Hola ${p.cliente}! Somos Dulce Descontrol. Te escribimos respecto a tu pedido #${p.id}.`;
             }
+
             let url = `https://wa.me/${numeroLimpio}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
+        }
+        // FUNCIONALIDAD PARA ENVIAR CORREO FORMAL (VERSIÓN GMAIL INFALIBLE)
+        function enviarCorreo(idPedido) {
+            let p = pedidosBase.find(x => x.id === idPedido);
+            if (!p || !p.email) {
+                alert("Este pedido no tiene un correo válido registrado.");
+                return;
+            }
+            
+            let asunto = `Tu Pedido #${p.id} en Dulce Descontrol`;
+            let totalFmt = "$" + p.precio.toLocaleString('es-CL');
+            let abonoFmt = "$" + (p.precio / 2).toLocaleString('es-CL');
+            
+            let cuerpo = `Hola ${p.cliente},\n\nGracias por preferir a Dulce Descontrol.\n\nAquí tienes el resumen de tu solicitud:\n- Orden N°: #${p.id}\n- Detalle: ${p.resumen}\n- Fecha de entrega: ${p.fecha}\n- Total a pagar: ${totalFmt}\n\n`;
+            
+            if(p.estado === "Cotizado" || p.estado === "Confirmado") {
+                 cuerpo += `Para agendar tu pedido y comenzar la producción, necesitamos el abono del 50% (${abonoFmt}).\n\nDATOS DE TRANSFERENCIA:\nBanco: Banco Estado\nCuenta RUT: 19.123.456-7\nNombre: Martina\nCorreo: pagos@dulcedescontrol.cl\n\nPor favor, responde este correo adjuntando tu comprobante de pago para dejar todo listo para el ${p.fecha}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
+            } else {
+                 cuerpo += `El estado actual de tu pedido es: ${p.estado}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
+            }
+            
+            // Fuerza a abrir una ventana nueva directamente en GMAIL
+            let urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(p.email)}&su=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+            
+            window.open(urlGmail, '_blank');
         }
 
         function abrirModalImagen(src) { document.getElementById('imagen-ampliada').src = src; document.getElementById('modal-imagen').classList.replace('hidden', 'flex'); }
