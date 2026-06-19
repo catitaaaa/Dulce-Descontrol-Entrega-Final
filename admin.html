@@ -274,7 +274,6 @@
         const db = firebase.firestore();
         // ============================================
 
-        // La base de datos de pedidos ahora está en Firebase
         let pedidosBase = [];
 
         // ================= SISTEMA DE CONFIRMACIÓN =================
@@ -605,7 +604,7 @@
             });
         }
 
-        // MENSAJERÍA RÁPIDA (WHATSAPP COMO ALERTA SIN EMOJIS)
+        // ================= MENSAJERÍA WHATSAPP (RÁPIDA) =================
         function enviarWhatsApp(idPedido) {
             let p = pedidosBase.find(x => x.id === idPedido);
             if (!p) return;
@@ -638,7 +637,7 @@
             window.open(url, '_blank');
         }
 
-        // FUNCIONALIDAD PARA ENVIAR CORREO FORMAL (VERSIÓN GMAIL INFALIBLE)
+        // ================= MENSAJERÍA CORREO (LÓGICA INTELIGENTE DE ESTADOS) =================
         function enviarCorreo(idPedido) {
             let p = pedidosBase.find(x => x.id === idPedido);
             if (!p || !p.email) {
@@ -650,19 +649,30 @@
             let totalFmt = "$" + p.precio.toLocaleString('es-CL');
             let abonoFmt = "$" + (p.precio / 2).toLocaleString('es-CL');
             
-            let cuerpo = `Hola ${p.cliente},\n\nGracias por preferir a Dulce Descontrol.\n\nAquí tienes el resumen de tu solicitud:\n- Orden N°: #${p.id}\n- Detalle: ${p.resumen}\n- Fecha de entrega: ${p.fecha}\n- Total a pagar: ${totalFmt}\n\n`;
-            
-            if(p.estado === "Cotizado" || p.estado === "Confirmado") {
-                 cuerpo += `Para agendar tu pedido y comenzar la producción, necesitamos el abono del 50% (${abonoFmt}).\n\nDATOS DE TRANSFERENCIA:\nBanco: Banco Estado\nCuenta RUT: 19.123.456-7\nNombre: Martina\nCorreo: pagos@dulcedescontrol.cl\n\nPor favor, responde este correo adjuntando tu comprobante de pago para dejar todo listo para el ${p.fecha}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
-            } else {
-                 cuerpo += `El estado actual de tu pedido es: ${p.estado}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
+            let cuerpo = "";
+
+            if(p.estado === "Cotizado") {
+                cuerpo = `Hola ${p.cliente},\n\n¡Gracias por cotizar con Dulce Descontrol!\n\nHemos revisado tu solicitud y tenemos disponibilidad para prepararla. Aquí tienes el detalle:\n- Orden N°: #${p.id}\n- Detalle: ${p.resumen}\n- Fecha de entrega: ${p.fecha}\n- Total a pagar: ${totalFmt}\n\nPara confirmar tu pedido de forma oficial y agendarlo, necesitamos el abono del 50% (${abonoFmt}).\n\nDATOS DE TRANSFERENCIA:\nBanco: Banco Estado\nCuenta RUT: 19.123.456-7\nNombre: Martina\nCorreo: pagos@dulcedescontrol.cl\n\nPor favor, responde este correo adjuntando tu comprobante de pago. Una vez validado, te enviaremos la confirmación y emitiremos tu boleta respectiva.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
+            } 
+            else if (p.estado === "Confirmado") {
+                cuerpo = `Hola ${p.cliente},\n\n¡Excelentes noticias! Hemos recibido tu comprobante con éxito y tu pedido #${p.id} ya se encuentra CONFIRMADO.\n\nTu torta está agendada para el ${p.fecha}. El saldo pendiente de ${abonoFmt} se pagará al momento de la entrega.\n\nPróximamente te haremos llegar la boleta electrónica correspondiente a tu compra.\n\n¡Gracias por preferir a Dulce Descontrol!`;
+            }
+            else if (p.estado === "Rechazado") {
+                cuerpo = `Hola ${p.cliente},\n\nTe agradecemos enormemente por haber pensado en Dulce Descontrol para tu celebración.\n\nLamentablemente, en esta ocasión no podremos tomar tu pedido #${p.id} para la fecha solicitada (${p.fecha}), ya que tenemos nuestra agenda completa para ese día.\n\nEsperamos de todo corazón poder endulzar otra de tus celebraciones en el futuro.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
+            }
+            else if (p.estado === "Entregado") {
+                cuerpo = `¡Hola ${p.cliente}!\n\nTu pedido #${p.id} figura como Entregado. Adjunto a este correo deberías haber recibido tu boleta electrónica final.\n\n¡Esperamos que disfrutes mucho tu torta y que tengas una hermosa celebración!\n\nSaludos,\nDulce Descontrol.`;
+            }
+            else {
+                // Para "En Producción" u otros posibles estados extra
+                cuerpo = `Hola ${p.cliente},\n\nGracias por preferir a Dulce Descontrol.\n\nAquí tienes el resumen de tu solicitud:\n- Orden N°: #${p.id}\n- Detalle: ${p.resumen}\n- Fecha de entrega: ${p.fecha}\n- Total de tu compra: ${totalFmt}\n\nEl estado actual de tu pedido es: ${p.estado}.\n\nSaludos,\nEl equipo de Dulce Descontrol.`;
             }
             
             let urlGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(p.email)}&su=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-            
             window.open(urlGmail, '_blank');
         }
 
+        // ================= UTILIDADES =================
         function abrirModalImagen(src) { document.getElementById('imagen-ampliada').src = src; document.getElementById('modal-imagen').classList.replace('hidden', 'flex'); }
         function cerrarModalImagen() { document.getElementById('modal-imagen').classList.replace('flex', 'hidden'); }
         function toggleMenu() { const menu = document.getElementById('menu-lateral'); const overlay = document.getElementById('menu-overlay'); menu.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden'); }
@@ -720,11 +730,11 @@
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
                         <div class="flex gap-2 w-full mt-1">
-                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
-                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span>
                             </button>
-                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
-                                <span class="material-symbols-outlined text-[16px]">mail</span>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span> <span class="hidden sm:inline md:hidden">Correo</span>
                             </button>
                         </div>
                     </div>
@@ -732,8 +742,6 @@
             });
             document.getElementById('contenido-modal-dia').innerHTML = html; document.getElementById('modal-dia').classList.replace('hidden', 'flex');
         }
-
-        function cerrarModalDia() { document.getElementById('modal-dia').classList.replace('flex', 'hidden'); }
 
         function renderPedidos() {
             const conteo = { "Cotizado": 0, "Confirmado": 0, "En producción": 0, "Entregado": 0, "Rechazado": 0 };
@@ -781,11 +789,11 @@
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
                         <div class="flex gap-2 w-full mt-1">
-                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
-                                <span class="material-symbols-outlined text-[16px]">chat</span>
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span>
                             </button>
-                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
-                                <span class="material-symbols-outlined text-[16px]">mail</span>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span> <span class="hidden sm:inline md:hidden">Correo</span>
                             </button>
                         </div>
                     </div>
