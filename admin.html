@@ -16,7 +16,6 @@
 </head>
 <body class="text-on-surface font-sans min-h-screen md:pl-80 flex flex-col md:flex-row overflow-hidden" id="cuerpo-admin">
 
-    <!-- PANTALLA DE ACCESO -->
     <div id="login-overlay" class="fixed inset-0 bg-[#F3EEF1] z-[100] flex items-center justify-center p-4">
         <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl text-center max-w-sm w-full border border-gray-100">
             <img src="logo_dulce_descontrol.png" alt="Logo Dulce Descontrol" class="w-20 sm:w-24 mx-auto mb-4 object-contain">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- HEADER MÓVIL -->
     <div class="md:hidden flex items-center justify-between p-4 bg-white shadow-sm fixed top-0 left-0 w-full z-30">
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-primary font-bold text-sm">M</div>
@@ -38,7 +36,6 @@
 
     <div id="menu-overlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden transition-opacity"></div>
 
-    <!-- MENÚ LATERAL -->
     <aside id="menu-lateral" class="bg-white shadow-xl h-full w-80 fixed left-0 top-0 z-50 flex-col py-6 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex">
         <div class="px-6 mb-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -58,7 +55,6 @@
         </nav>
     </aside>
 
-    <!-- MODALS -->
     <div id="modal-confirmacion" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white w-full max-w-sm rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col items-center text-center transform transition-transform scale-95" id="caja-confirmacion">
             <div class="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 rounded-full flex items-center justify-center mb-4 ring-8 ring-red-50"><span class="material-symbols-outlined text-4xl sm:text-5xl text-red-500 font-bold">delete_forever</span></div>
@@ -183,7 +179,6 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <main id="dashboard-content" class="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-20 sm:pt-24 md:pt-10 flex flex-col gap-6 overflow-y-auto pb-10 h-screen hidden">
         
         <div id="vista-dashboard" class="flex flex-col gap-6">
@@ -218,7 +213,9 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-green-200 flex flex-col justify-center text-center relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-green-500"></div><span class="text-xs sm:text-sm font-bold text-gray-500 uppercase">Ingresos Asegurados</span><span id="finanzas-asegurado" class="text-3xl sm:text-4xl font-bold text-green-600 mt-2 block">$0</span></div>
-                <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center text-center relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-gray-400"></div><span class="text-xs sm:text-sm font-bold text-gray-500 uppercase">Dinero en el Aire</span><span id="finanzas-pendiente" class="text-2xl sm:text-3xl font-bold text-gray-500 mt-2 block">$0</span></div>
+                
+                <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-center text-center relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-gray-400"></div><span class="text-xs sm:text-sm font-bold text-gray-500 uppercase">Ingresos Pendientes</span><span id="finanzas-pendiente" class="text-2xl sm:text-3xl font-bold text-gray-500 mt-2 block">$0</span></div>
+                
                 <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-red-200 flex flex-col justify-center text-center relative overflow-hidden"><div class="absolute top-0 left-0 w-full h-1 bg-red-400"></div><span class="text-xs sm:text-sm font-bold text-gray-500 uppercase">Ventas Perdidas</span><span id="finanzas-rechazado" class="text-xl sm:text-2xl font-bold text-red-400 mt-2 block">$0</span></div>
             </div>
             <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-pink-100 mb-10">
@@ -256,7 +253,6 @@
 
     </main>
 
-    <!-- FIREBASE COMPAT SDKS -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
@@ -284,14 +280,18 @@
             accionConfirmadaCallback = callback;
             const modal = document.getElementById('modal-confirmacion');
             const caja = document.getElementById('caja-confirmacion');
-            modal.classList.replace('hidden', 'flex');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
             setTimeout(() => caja.classList.replace('scale-95', 'scale-100'), 10);
         }
         function cerrarModalConfirmacion() {
             const modal = document.getElementById('modal-confirmacion');
             const caja = document.getElementById('caja-confirmacion');
             caja.classList.replace('scale-100', 'scale-95');
-            setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 150);
             accionConfirmadaCallback = null;
         }
         function ejecutarConfirmacion() { if(accionConfirmadaCallback) accionConfirmadaCallback(); cerrarModalConfirmacion(); }
@@ -425,12 +425,12 @@
                 imgPreview.src = ""; imgPreview.classList.add('hidden'); iconPreview.classList.remove('hidden');
                 agregarFilaIngrediente();
             }
-            modal.classList.replace('hidden', 'flex'); setTimeout(() => caja.classList.replace('scale-95', 'scale-100'), 10);
+            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => caja.classList.replace('scale-95', 'scale-100'), 10);
         }
 
         function cerrarModalReceta() {
             const modal = document.getElementById('modal-formulario-receta'); const caja = document.getElementById('caja-formulario-receta');
-            caja.classList.replace('scale-100', 'scale-95'); setTimeout(() => modal.classList.replace('flex', 'hidden'), 150);
+            caja.classList.replace('scale-100', 'scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 150);
         }
 
         function guardarReceta() {
@@ -495,9 +495,15 @@
         function abrirModalAjustarStock(key) {
             document.getElementById('key-insumo-actual').value = key; document.getElementById('texto-nombre-insumo').innerText = `Stock de: ${inventario[key].nombre}`;
             document.getElementById('unidad-insumo-lbl').innerText = inventario[key].unidad; document.getElementById('cantidad-stock-nueva').value = "";
-            document.getElementById('modal-ajustar-stock').classList.replace('hidden', 'flex'); setTimeout(() => document.getElementById('caja-ajustar-stock').classList.replace('scale-95', 'scale-100'), 10);
+            const modal = document.getElementById('modal-ajustar-stock');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); 
+            setTimeout(() => document.getElementById('caja-ajustar-stock').classList.replace('scale-95', 'scale-100'), 10);
         }
-        function cerrarModalAjustarStock() { document.getElementById('caja-ajustar-stock').classList.replace('scale-100', 'scale-95'); setTimeout(() => document.getElementById('modal-ajustar-stock').classList.replace('flex', 'hidden'), 150); }
+        function cerrarModalAjustarStock() { 
+            document.getElementById('caja-ajustar-stock').classList.replace('scale-100', 'scale-95'); 
+            const modal = document.getElementById('modal-ajustar-stock');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 150); 
+        }
 
         function guardarNuevoStock() {
             const key = document.getElementById('key-insumo-actual').value; const cantidad = parseFloat(document.getElementById('cantidad-stock-nueva').value);
@@ -536,8 +542,17 @@
             }); 
         }
 
-        function abrirModalExito(msg) { document.getElementById('mensaje-exito').innerHTML = msg; document.getElementById('modal-exito').classList.replace('hidden', 'flex'); setTimeout(() => document.getElementById('caja-exito').classList.replace('scale-95', 'scale-100'), 10); }
-        function cerrarModalExito() { document.getElementById('caja-exito').classList.replace('scale-100', 'scale-95'); setTimeout(() => document.getElementById('modal-exito').classList.replace('flex', 'hidden'), 150); }
+        function abrirModalExito(msg) { 
+            document.getElementById('mensaje-exito').innerHTML = msg; 
+            const modal = document.getElementById('modal-exito');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); 
+            setTimeout(() => document.getElementById('caja-exito').classList.replace('scale-95', 'scale-100'), 10); 
+        }
+        function cerrarModalExito() { 
+            document.getElementById('caja-exito').classList.replace('scale-100', 'scale-95'); 
+            const modal = document.getElementById('modal-exito');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 150); 
+        }
 
         // ================= DEDUCCIÓN MATEMÁTICA Y PEDIDOS =================
         function ejecutarDeduccionMatematica(pedido) {
@@ -697,8 +712,16 @@
 
         function sincronizarMes() { const m1 = document.getElementById('mes-filtro').value; const m2 = document.getElementById('mes-finanzas').value; if (document.activeElement.id === 'mes-filtro') { document.getElementById('mes-finanzas').value = m1; } else { document.getElementById('mes-filtro').value = m2; } }
         function mostrarFechaActual() { let f = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); document.getElementById('fecha-hoy').innerText = " Hoy es " + f.charAt(0).toUpperCase() + f.slice(1); }
-        function abrirModalInventario() { document.getElementById('modal-inventario').classList.replace('hidden', 'flex'); }
-        function cerrarModalInventario() { document.getElementById('modal-inventario').classList.replace('flex', 'hidden'); }
+        
+        // MODALES REFORZADOS
+        function abrirModalInventario() { 
+            const mod = document.getElementById('modal-inventario');
+            mod.classList.remove('hidden'); mod.classList.add('flex'); 
+        }
+        function cerrarModalInventario() { 
+            const mod = document.getElementById('modal-inventario');
+            mod.classList.add('hidden'); mod.classList.remove('flex'); 
+        }
 
         function abrirModalDia(fechaStr) {
             const pedidosDia = pedidosBase.filter(p => p.fecha === fechaStr); if(pedidosDia.length === 0) return;
@@ -730,17 +753,26 @@
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
                         <div class="flex gap-2 w-full mt-1">
-                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
-                                <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span>
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
                             </button>
-                            <button onclick="enviarCorreo(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Correo">
-                                <span class="material-symbols-outlined text-[16px]">mail</span> <span class="hidden sm:inline md:hidden">Correo</span>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span>
                             </button>
                         </div>
                     </div>
                 </div>`;
             });
-            document.getElementById('contenido-modal-dia').innerHTML = html; document.getElementById('modal-dia').classList.replace('hidden', 'flex');
+            document.getElementById('contenido-modal-dia').innerHTML = html; 
+            const mod = document.getElementById('modal-dia');
+            mod.classList.remove('hidden'); mod.classList.add('flex');
+        }
+
+        // SECCIÓN CORREGIDA: BOTÓN VOLVER SÚPER ROBUSTO
+        function cerrarModalDia() { 
+            const mod = document.getElementById('modal-dia');
+            mod.classList.add('hidden'); 
+            mod.classList.remove('flex'); 
         }
 
         function renderPedidos() {
@@ -789,11 +821,11 @@
                             <option value="Rechazado" ${p.estado==='Rechazado'?'selected':''}>Rechazado</option>
                         </select>
                         <div class="flex gap-2 w-full mt-1">
-                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
-                                <span class="material-symbols-outlined text-[16px]">chat</span> <span class="hidden sm:inline md:hidden">WhatsApp</span>
+                            <button onclick="enviarWhatsApp(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-[#25D366] text-white p-2 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors shadow-sm" title="Enviar WhatsApp">
+                                <span class="material-symbols-outlined text-[16px]">chat</span>
                             </button>
-                            <button onclick="enviarCorreo(${p.id})" class="flex-1 md:w-full flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Correo">
-                                <span class="material-symbols-outlined text-[16px]">mail</span> <span class="hidden sm:inline md:hidden">Correo</span>
+                            <button onclick="enviarCorreo(${p.id})" class="flex-1 flex items-center justify-center gap-1 bg-blue-500 text-white p-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors shadow-sm" title="Enviar Cotización por Correo">
+                                <span class="material-symbols-outlined text-[16px]">mail</span>
                             </button>
                         </div>
                     </div>
