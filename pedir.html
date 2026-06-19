@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Cotizar Pedido - Dulce Descontrol</title>
-            <link rel="icon" type="image/png" href="logo_dulce_descontrol.png" />
+    <link rel="icon" type="image/png" href="logo_dulce_descontrol.png" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -184,7 +184,7 @@
                             
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 mb-1">Fecha de Entrega *</label>
-                                <input type="date" id="fecha" required class="w-full h-[44px] sm:h-[46px] border-2 border-gray-200 px-4 rounded-xl focus:border-primary outline-none text-sm font-bold text-gray-600">
+                                <input type="date" id="fecha" required onchange="actualizarResumen()" class="w-full h-[44px] sm:h-[46px] border-2 border-gray-200 px-4 rounded-xl focus:border-primary outline-none text-sm font-bold text-gray-600">
                                 <p id="texto-alerta-fecha" class="text-[10px] text-primary font-bold mt-1 ml-1 hidden">Esta torta requiere más días de preparación.</p>
                             </div>
 
@@ -423,10 +423,12 @@
             
             fechaInput.min = minDateFormateada;
 
+            // SOLUCIÓN IPHONE: En lugar de borrar la fecha (fechaInput.value = ""), usamos setCustomValidity
             if(fechaInput.value && fechaInput.value < minDateFormateada) {
-                fechaInput.value = "";
+                fechaInput.setCustomValidity("Selecciona una fecha válida según el tiempo de preparación.");
                 if(textoAlerta) textoAlerta.classList.remove('hidden'); 
             } else {
+                fechaInput.setCustomValidity(""); // Limpiamos el error si la fecha es correcta
                 if(textoAlerta) textoAlerta.classList.add('hidden'); 
             }
 
